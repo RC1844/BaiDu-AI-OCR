@@ -87,5 +87,11 @@
   <ItemGroup>
     <None Include="Resources\baiduAI.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\12.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\121.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

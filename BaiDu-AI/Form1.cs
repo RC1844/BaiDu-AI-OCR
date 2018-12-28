@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using Newtonsoft.Json.Linq;
 
 namespace BaiDu_AI
 {
@@ -15,6 +16,7 @@ namespace BaiDu_AI
         public Form1()
         {
             InitializeComponent();
+            toolStripStatusLabel1.Text = "就绪";
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -76,12 +78,11 @@ namespace BaiDu_AI
                     textBox2.Text += result["words_result"][x]["words"] + "\r\n";
                 }
             }
-            else
+            else if(result.ContainsKey("error_code"))
             {
-                textBox2.Text += "错误代码：" + result["error_code"];
+                Error_mes(result["error_code"]);
             }
         }
-
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButton1.Checked == true)
@@ -149,10 +150,14 @@ namespace BaiDu_AI
                 W_File.Flush();     //清理缓冲区
                 W_File.Close();     //关闭文件
             }
+            else
+            {
+
+            }
         }
-        public void Error_mes()
+        public void Error_mes(JToken error_code)
         {
-            Dictionary<int, string> Error_message = new Dictionary<int, string>
+            Dictionary<JToken, string> Error_message = new Dictionary<JToken, string>
             {
                 { 4, "集群超限额" },
                 { 14, "IAM鉴权失败，建议用户参照文档自查生成sign的方式是否正确，或换用控制台中ak sk的方式调用" },
@@ -187,8 +192,20 @@ namespace BaiDu_AI
                 { 282809, "返回结果请求错误（不属于excel或json）" },
                 { 282810, "图像识别错误" }
             };
+            MessageBox.Show(Error_message[error_code], "提示", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
 
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process Processs = System.Diagnostics.Process.Start(@"C:\WINDOWS\system32\mspaint.exe");
+        }
 
+        private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
+        {
+            if (textBox1.Text != "")
+            {
+                System.Diagnostics.Process Processs = System.Diagnostics.Process.Start(@"C:\WINDOWS\system32\mspaint.exe", @textBox1.Text);
+            }
         }
     }
 }
