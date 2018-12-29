@@ -16,9 +16,12 @@ namespace BaiDu_AI
         public Form1()
         {
             InitializeComponent();
+            Form_Init();
+        }
+        private void Form_Init()
+        {
             toolStripStatusLabel1.Text = "就绪";
         }
-
         private void button1_Click(object sender, EventArgs e)
         {
 
@@ -76,11 +79,13 @@ namespace BaiDu_AI
                 foreach (int x in arr)
                 {
                     textBox2.Text += result["words_result"][x]["words"] + "\r\n";
+                    toolStripStatusLabel2.Text = "完成";
                 }
             }
-            else if(result.ContainsKey("error_code"))
+            else if (result.ContainsKey("error_code"))
             {
                 Error_mes(result["error_code"]);
+                toolStripStatusLabel2.Text = "存在错误";
             }
         }
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
@@ -123,11 +128,6 @@ namespace BaiDu_AI
                 //保存
 
                 Save_file();
-                //FileStream fsWrite = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write)
-                //{
-                //    byte[] buffer = Encoding.Default.GetBytes(textBox2.Text);
-                //    fsWrite.Write(buffer, 0, buffer.Length);
-                //}
             }
         }
 
@@ -149,10 +149,16 @@ namespace BaiDu_AI
                 W_File.WriteLine(textBox2.Text);
                 W_File.Flush();     //清理缓冲区
                 W_File.Close();     //关闭文件
+                toolStripStatusLabel2.Text = "保存成功";
+                //FileStream fsWrite = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write)
+                //{
+                //    byte[] buffer = Encoding.Default.GetBytes(textBox2.Text);
+                //    fsWrite.Write(buffer, 0, buffer.Length);
+                //}
             }
             else
             {
-
+                toolStripStatusLabel2.Text = "缺少保存路径，保存失败";
             }
         }
         public void Error_mes(JToken error_code)
@@ -192,7 +198,7 @@ namespace BaiDu_AI
                 { 282809, "返回结果请求错误（不属于excel或json）" },
                 { 282810, "图像识别错误" }
             };
-            MessageBox.Show(Error_message[error_code], "提示", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(Error_message[error_code], "错误提示", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
@@ -205,6 +211,19 @@ namespace BaiDu_AI
             if (textBox1.Text != "")
             {
                 System.Diagnostics.Process Processs = System.Diagnostics.Process.Start(@"C:\WINDOWS\system32\mspaint.exe", @textBox1.Text);
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            textBox2.Text = "";
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if (textBox2.Text != "")
+            {
+                Clipboard.SetDataObject(textBox2.Text);
             }
         }
     }
