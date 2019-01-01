@@ -20,8 +20,24 @@ namespace BaiDu_AI
         }
         private void Form_Init()
         {
+
             toolStripStatusLabel1.Text = "就绪";
         }
+        public static bool WebRequestTest()
+        {
+            string url = "https://aip.baidubce.com";
+            try
+            {
+                System.Net.WebRequest myRequest = System.Net.WebRequest.Create(url);
+                System.Net.WebResponse myResponse = myRequest.GetResponse();
+            }
+            catch (System.Net.WebException)
+            {
+                return false;
+            }
+            return true;
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
 
@@ -44,56 +60,68 @@ namespace BaiDu_AI
             if (O_File.ShowDialog() == DialogResult.OK)
             {
                 textBox1.Text = Path.GetFullPath(O_File.FileName);
-                pictureBox1.Image = Image.FromFile(textBox1.Text);
+                pictureBox1.Image = Image.FromFile(@textBox1.Text);
             }
         }
         private void button3_Click(object sender, EventArgs e)
         {
-            var API_KEY = "agCqSFsY7OtRTGx3TaykmvIq";
-            var SECRET_KEY = "SWZqUnLpGXCUmZ6fPmxtcR8y4f6rI3Cy";
-            var client = new Baidu.Aip.Ocr.Ocr(API_KEY, SECRET_KEY);
-            var result = new Newtonsoft.Json.Linq.JObject();
-            if (radioButton1.Checked == true)
+            if (WebRequestTest())
             {
-                if (textBox1.Text != "")
+                var API_KEY = "agCqSFsY7OtRTGx3TaykmvIq";
+                var SECRET_KEY = "SWZqUnLpGXCUmZ6fPmxtcR8y4f6rI3Cy";
+                var client = new Baidu.Aip.Ocr.Ocr(API_KEY, SECRET_KEY);
+                var result = new JObject();
+                if (radioButton1.Checked == true)
                 {
-                    var image = File.ReadAllBytes(@textBox1.Text);
-                    // 调用通用文字识别, 图片参数为本地图片，可能会抛出网络等异常，请使用try/catch捕获
-                    result = client.GeneralBasic(image);
+                    if (textBox1.Text != "")
+                    {
+                        if (File.Exists(@textBox1.Text))
+                        {
+                            var image = File.ReadAllBytes(@textBox1.Text);
+                            // 调用通用文字识别, 图片参数为本地图片，可能会抛出网络等异常，请使用try/catch捕获
+                            result = client.GeneralBasic(image);
+                        }
+                        else toolStripStatusLabel2.Text = "文件不存在！";
+                    }
                 }
-            }
-            else if (textBox6.Text != "")
-            {
-                pictureBox1.ImageLocation = @textBox6.Text;
-                string url = textBox6.Text;
-                // 调用通用文字识别, 图片参数为远程url图片，可能会抛出网络等异常，请使用try/catch捕获
-                result = client.GeneralBasicUrl(url);
-            }
-            //清空textbox2
-            textBox2.Text = "";
-            if (result.ContainsKey("words_result"))
-            {
-                //数组生成
-                int[] arr = Enumerable.Range(0, result["words_result"].Count()).ToArray();
-                //遍历数组字典
-                foreach (int x in arr)
+                else if (textBox6.Text != "")
                 {
-                    textBox2.Text += result["words_result"][x]["words"] + "\r\n";
-                    toolStripStatusLabel2.Text = "完成";
+
+
+                    pictureBox1.ImageLocation = @textBox6.Text;
+                    string url = textBox6.Text;
+                    // 调用通用文字识别, 图片参数为远程url图片，可能会抛出网络等异常，请使用try/catch捕获
+                    result = client.GeneralBasicUrl(url);
+
                 }
+                //清空textbox2
+                textBox2.Text = "";
+                if (result.ContainsKey("words_result"))
+                {
+                    //数组生成
+                    int[] arr = Enumerable.Range(0, result["words_result"].Count()).ToArray();
+                    //遍历数组字典
+                    foreach (int x in arr)
+                    {
+                        textBox2.Text += result["words_result"][x]["words"] + "\r\n";
+                        toolStripStatusLabel2.Text = "完成";
+                    }
+                }
+                else if (result.ContainsKey("error_code"))
+                {
+                    Error_mes(result["error_code"]);
+                    toolStripStatusLabel2.Text = "存在错误";
+                }
+                else toolStripStatusLabel2.Text = "存在未知错误";
             }
-            else if (result.ContainsKey("error_code"))
-            {
-                Error_mes(result["error_code"]);
-                toolStripStatusLabel2.Text = "存在错误";
-            }
+            else toolStripStatusLabel2.Text = "无法链接服务器";
         }
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButton1.Checked == true)
             {
                 if (textBox1.Text != "")
-                    pictureBox1.Image = Image.FromFile(textBox1.Text);
+                    pictureBox1.Image = Image.FromFile(@textBox1.Text);
             }
         }
 
