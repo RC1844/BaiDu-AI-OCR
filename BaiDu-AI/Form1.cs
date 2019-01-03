@@ -8,11 +8,15 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using System.Xml;
 
 namespace BaiDu_AI
 {
     public partial class Form1 : Form
     {
+        string XmlPath = "Seetings.xml";
+        string API_KEY = "agCqSFsY7OtRTGx3TaykmvIq";
+        string SECRET_KEY = "SWZqUnLpGXCUmZ6fPmxtcR8y4f6rI3Cy";
         public Form1()
         {
             InitializeComponent();
@@ -20,6 +24,35 @@ namespace BaiDu_AI
         }
         private void Form_Init()
         {
+            //判断文件是否存在
+            if (File.Exists(XmlPath))
+            {
+                //该文件存在
+                //加载文件
+                XmlDocument XmlDoc = new XmlDocument();
+                XmlDoc.Load(XmlPath);
+                //获得根节点
+                XmlElement Root = XmlDoc.DocumentElement;
+                XmlNode Settings = Root.SelectSingleNode("Setting");
+                checkBox3.Checked = Convert.ToBoolean(Settings.Attributes["Setting"].Value);
+                bool Enabled = Convert.ToBoolean(Settings.Attributes["Enabled"].Value);
+                checkBox1.Checked = Enabled;
+                if (Enabled)
+                {
+                    textBox4.Text = Settings.Attributes["API_KEY"].Value;
+                    API_KEY = textBox4.Text;
+                    textBox5.Text = Settings.Attributes["SECRET_KEY"].Value;
+                    SECRET_KEY = textBox5.Text;
+                }
+                XmlNode FilePath = Root.SelectSingleNode("FilePath");
+                XmlNodeList PathList = FilePath.ChildNodes;
+                for (int i = 0; i < 1; i++)
+                {
+                    textBox1.Text = PathList[i].Attributes["FilePath"].Value;
+                    textBox6.Text = PathList[i].Attributes["UrlPath"].Value;
+                    textBox3.Text = PathList[i].Attributes["SavePath"].Value;
+                }
+            }
 
             toolStripStatusLabel1.Text = "就绪";
         }
@@ -67,27 +100,23 @@ namespace BaiDu_AI
         {
             if (WebRequestTest())
             {
-                var API_KEY = "agCqSFsY7OtRTGx3TaykmvIq";
-                var SECRET_KEY = "SWZqUnLpGXCUmZ6fPmxtcR8y4f6rI3Cy";
                 var client = new Baidu.Aip.Ocr.Ocr(API_KEY, SECRET_KEY);
                 var result = new JObject();
-                if (radioButton1.Checked == true)
+                if (radioButton1.Checked)
                 {
-                    if (textBox1.Text != "")
+
+                    if (File.Exists(@textBox1.Text))
                     {
-                        if (File.Exists(@textBox1.Text))
-                        {
-                            var image = File.ReadAllBytes(@textBox1.Text);
-                            // 调用通用文字识别, 图片参数为本地图片，可能会抛出网络等异常，请使用try/catch捕获
-                            result = client.GeneralBasic(image);
-                        }
-                        else toolStripStatusLabel2.Text = "文件不存在！";
+                        pictureBox1.Image = Image.FromFile(@textBox1.Text);
+                        var image = File.ReadAllBytes(@textBox1.Text);
+                        // 调用通用文字识别, 图片参数为本地图片，可能会抛出网络等异常，请使用try/catch捕获
+                        result = client.GeneralBasic(image);
                     }
+                    else toolStripStatusLabel2.Text = "文件不存在！";
+
                 }
                 else if (textBox6.Text != "")
                 {
-
-
                     pictureBox1.ImageLocation = @textBox6.Text;
                     string url = textBox6.Text;
                     // 调用通用文字识别, 图片参数为远程url图片，可能会抛出网络等异常，请使用try/catch捕获
@@ -96,6 +125,7 @@ namespace BaiDu_AI
                 }
                 //清空textbox2
                 textBox2.Text = "";
+                //判断words_result是否存在
                 if (result.ContainsKey("words_result"))
                 {
                     //数组生成
@@ -252,6 +282,92 @@ namespace BaiDu_AI
             if (textBox2.Text != "")
             {
                 Clipboard.SetDataObject(textBox2.Text);
+            }
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            Save_Xml();
+        }
+        public void Save_Xml()
+        {  //创XML建对象
+            XmlDocument XmlDoc = new XmlDocument();
+            //声明根节点
+            XmlElement Root, settings;
+            //判断文件是否存在
+            if (File.Exists(XmlPath))
+            {
+                //该文件存在
+                //加载文件
+                XmlDoc.Load(XmlPath);
+                //获得根节点
+                Root = XmlDoc.DocumentElement;
+                settings = (XmlElement)Root.SelectSingleNode("Setting");
+                //FilePath = (XmlElement)Root.SelectSingleNode("FilePath");
+                XmlNode FilePath = Root.SelectSingleNode("FilePath");
+                XmlNodeList PathList = FilePath.ChildNodes;
+                for (int i = 0; i < 1; i++)
+                {
+                    PathList[i].Attributes["FilePath"].Value = textBox1.Text + "";
+                    PathList[i].Attributes["UrlPath"].Value = textBox6.Text + "";
+                    PathList[i].Attributes["SavePath"].Value = textBox3.Text + "";
+                }
+            }
+            else//该文件不存在
+            {
+                //创建声明
+                XmlDeclaration dec = XmlDoc.CreateXmlDeclaration("1.0", "utf-8", null);
+                XmlDoc.AppendChild(dec);
+                //创建根节点
+                Root = XmlDoc.CreateElement("root");
+                XmlDoc.AppendChild(Root);
+                settings = XmlDoc.CreateElement("Setting");
+                XmlElement FilePath = XmlDoc.CreateElement("FilePath");
+                Root.AppendChild(FilePath);
+                for (int i = 0; i < 1; i++)
+                {
+                    XmlElement Path = XmlDoc.CreateElement("Path");
+                    Path.InnerText = i + "";
+                    Path.SetAttribute("FilePath", textBox1.Text + "");
+                    Path.SetAttribute("UrlPath", textBox6.Text + "");
+                    Path.SetAttribute("SavePath", textBox3.Text + "");
+                    FilePath.AppendChild(Path);
+                }
+            }
+            settings.SetAttribute("Setting", checkBox3.Checked + "");
+            settings.SetAttribute("Enabled", checkBox1.Checked + "");
+            //settings.SetAttribute("AppID", "string");
+            settings.SetAttribute("API_KEY", textBox4.Text + "");
+            settings.SetAttribute("SECRET_KEY", textBox5.Text + "");
+            Root.AppendChild(settings);
+
+            XmlDoc.Save(XmlPath);
+        }
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox2.Checked) textBox5.PasswordChar = '*';
+            else textBox5.PasswordChar = '\0';
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked)
+            {
+                API_KEY = textBox4.Text;
+                SECRET_KEY = textBox5.Text;
+            }
+            else
+            {
+                API_KEY = "agCqSFsY7OtRTGx3TaykmvIq";
+                SECRET_KEY = "SWZqUnLpGXCUmZ6fPmxtcR8y4f6rI3Cy";
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (checkBox3.Checked)
+            {
+                Save_Xml();
             }
         }
     }
