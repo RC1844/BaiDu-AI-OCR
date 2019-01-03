@@ -7,7 +7,7 @@
     <ProjectGuid>{AD2E8825-BDF5-4AEB-89A9-B8F1B4267B07}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>BaiDu_AI</RootNamespace>
-    <AssemblyName>BaiDu-AI</AssemblyName>
+    <AssemblyName>文字识别</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
