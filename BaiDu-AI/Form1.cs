@@ -266,10 +266,11 @@ namespace BaiDu_AI
 
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
         {
-            if (textBox1.Text != "")
+            if (File.Exists(@textBox1.Text))
             {
                 System.Diagnostics.Process Processs = System.Diagnostics.Process.Start(@"C:\WINDOWS\system32\mspaint.exe", @textBox1.Text);
             }
+            else toolStripStatusLabel2.Text = "文件不存在！";
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -372,5 +373,3 @@ namespace BaiDu_AI
         }
     }
 }
-
-
