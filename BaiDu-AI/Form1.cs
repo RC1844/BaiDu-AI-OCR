@@ -33,47 +33,57 @@ namespace BaiDu_AI
                 XmlDoc.Load(XmlPath);
                 //获得根节点
                 XmlElement Root = XmlDoc.DocumentElement;
+                //匹配XmlNode
                 XmlNode Settings = Root.SelectSingleNode("Setting");
+                //根据XmlNode内容设置各项组件的属性
                 checkBox3.Checked = Convert.ToBoolean(Settings.Attributes["Setting"].Value);
                 bool Enabled = Convert.ToBoolean(Settings.Attributes["Enabled"].Value);
                 checkBox1.Checked = Enabled;
+                textBox4.Text = Settings.Attributes["API_KEY"].Value;
+                textBox5.Text = Settings.Attributes["SECRET_KEY"].Value;
                 if (Enabled)
                 {
-                    textBox4.Text = Settings.Attributes["API_KEY"].Value;
+                    //检查是否启用自定义密匙
                     API_KEY = textBox4.Text;
-                    textBox5.Text = Settings.Attributes["SECRET_KEY"].Value;
                     SECRET_KEY = textBox5.Text;
                 }
                 XmlNode FilePath = Root.SelectSingleNode("FilePath");
                 XmlNodeList PathList = FilePath.ChildNodes;
                 for (int i = 0; i < 1; i++)
                 {
+                    //还原上次使用过的路径
                     textBox1.Text = PathList[i].Attributes["FilePath"].Value;
                     textBox6.Text = PathList[i].Attributes["UrlPath"].Value;
                     textBox3.Text = PathList[i].Attributes["SavePath"].Value;
                 }
             }
-
+            //报告初始化完成
             toolStripStatusLabel1.Text = "就绪";
         }
         public static bool WebRequestTest()
         {
-            string url = "https://aip.baidubce.com";
+            string url = "https://aip.baidubce.com/rest/2.0/ocr/v1/general";
             try
             {
                 System.Net.WebRequest myRequest = System.Net.WebRequest.Create(url);
+                //设置请求超时为6000ms
+                myRequest.Timeout = 1000;
                 System.Net.WebResponse myResponse = myRequest.GetResponse();
             }
             catch (System.Net.WebException)
             {
                 return false;
             }
+            finally
+            {
+
+            }
             return true;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-
+            //显示一个标准对话框
             OpenFileDialog O_File = new OpenFileDialog
             {
                 Title = "选择需要识别的图片（只支持PNG、JPG、JPEG、BMP）",
@@ -92,22 +102,26 @@ namespace BaiDu_AI
             };
             if (O_File.ShowDialog() == DialogResult.OK)
             {
+                //获取用户选择的图片路径
                 textBox1.Text = Path.GetFullPath(O_File.FileName);
+                //在pictureBox1中打开图片
                 pictureBox1.Image = Image.FromFile(@textBox1.Text);
             }
         }
         private void button3_Click(object sender, EventArgs e)
         {
-            if (WebRequestTest())
+            //禁用button3防止多次点击
+            button3.Enabled = false;
+            if (WebRequestTest()/*检查网络的联通性*/)
             {
                 var client = new Baidu.Aip.Ocr.Ocr(API_KEY, SECRET_KEY);
                 var result = new JObject();
                 if (radioButton1.Checked)
                 {
-
                     if (File.Exists(@textBox1.Text))
                     {
                         pictureBox1.Image = Image.FromFile(@textBox1.Text);
+                        //将图片内容读入一个字节数组
                         var image = File.ReadAllBytes(@textBox1.Text);
                         // 调用通用文字识别, 图片参数为本地图片，可能会抛出网络等异常，请使用try/catch捕获
                         result = client.GeneralBasic(image);
@@ -121,30 +135,34 @@ namespace BaiDu_AI
                     string url = textBox6.Text;
                     // 调用通用文字识别, 图片参数为远程url图片，可能会抛出网络等异常，请使用try/catch捕获
                     result = client.GeneralBasicUrl(url);
-
                 }
-                //清空textbox2
-                textBox2.Text = "";
+                else toolStripStatusLabel2.Text = "网址为空！";
+
                 //判断words_result是否存在
                 if (result.ContainsKey("words_result"))
                 {
+                    //清空textbox2
+                    textBox2.Text = "";
                     //数组生成
                     int[] arr = Enumerable.Range(0, result["words_result"].Count()).ToArray();
                     //遍历数组字典
                     foreach (int x in arr)
                     {
+                        //将识别内容写入textBox2
                         textBox2.Text += result["words_result"][x]["words"] + "\r\n";
                         toolStripStatusLabel2.Text = "完成";
                     }
                 }
                 else if (result.ContainsKey("error_code"))
                 {
+                    //索检错误代码
                     Error_mes(result["error_code"]);
                     toolStripStatusLabel2.Text = "存在错误";
                 }
                 else toolStripStatusLabel2.Text = "存在未知错误";
             }
             else toolStripStatusLabel2.Text = "无法链接服务器";
+            button3.Enabled = true;
         }
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
@@ -202,7 +220,9 @@ namespace BaiDu_AI
                 {
                     txt = textBox1.Text;
                 }
+                //创建或打开用于写UTF-8编码文本的文件
                 StreamWriter W_File = File.CreateText(@textBox3.Text);
+                //写入内容
                 W_File.WriteLine("图片来自：" + txt);
                 W_File.WriteLine(textBox2.Text);
                 W_File.Flush();     //清理缓冲区
@@ -261,14 +281,14 @@ namespace BaiDu_AI
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process Processs = System.Diagnostics.Process.Start(@"C:\WINDOWS\system32\mspaint.exe");
+            System.Diagnostics.Process.Start(@"C:\WINDOWS\system32\mspaint.exe");
         }
 
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
         {
             if (File.Exists(@textBox1.Text))
             {
-                System.Diagnostics.Process Processs = System.Diagnostics.Process.Start(@"C:\WINDOWS\system32\mspaint.exe", @textBox1.Text);
+                System.Diagnostics.Process.Start(@"C:\WINDOWS\system32\mspaint.exe", @textBox1.Text);
             }
             else toolStripStatusLabel2.Text = "文件不存在！";
         }
@@ -304,11 +324,13 @@ namespace BaiDu_AI
                 //获得根节点
                 Root = XmlDoc.DocumentElement;
                 settings = (XmlElement)Root.SelectSingleNode("Setting");
-                //FilePath = (XmlElement)Root.SelectSingleNode("FilePath");
+                //匹配XmlNode
                 XmlNode FilePath = Root.SelectSingleNode("FilePath");
+                //获取XmlNode列表
                 XmlNodeList PathList = FilePath.ChildNodes;
                 for (int i = 0; i < 1; i++)
                 {
+                    //遍历XmlNode列表
                     PathList[i].Attributes["FilePath"].Value = textBox1.Text + "";
                     PathList[i].Attributes["UrlPath"].Value = textBox6.Text + "";
                     PathList[i].Attributes["SavePath"].Value = textBox3.Text + "";
@@ -321,7 +343,9 @@ namespace BaiDu_AI
                 XmlDoc.AppendChild(dec);
                 //创建根节点
                 Root = XmlDoc.CreateElement("root");
+                //将节点包含到xml对象
                 XmlDoc.AppendChild(Root);
+                //创建新元素
                 settings = XmlDoc.CreateElement("Setting");
                 XmlElement FilePath = XmlDoc.CreateElement("FilePath");
                 Root.AppendChild(FilePath);
@@ -335,6 +359,7 @@ namespace BaiDu_AI
                     FilePath.AppendChild(Path);
                 }
             }
+            //设置节点的属性
             settings.SetAttribute("Setting", checkBox3.Checked + "");
             settings.SetAttribute("Enabled", checkBox1.Checked + "");
             //settings.SetAttribute("AppID", "string");
@@ -354,8 +379,8 @@ namespace BaiDu_AI
         {
             if (checkBox1.Checked)
             {
-                API_KEY = textBox4.Text;
-                SECRET_KEY = textBox5.Text;
+                API_KEY = textBox4.Text + "";
+                SECRET_KEY = textBox5.Text + "";
             }
             else
             {
