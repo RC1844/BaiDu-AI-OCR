@@ -36,18 +36,21 @@ namespace BaiDu_AI
                 //匹配XmlNode
                 XmlNode Settings = Root.SelectSingleNode("Setting");
                 //根据XmlNode内容设置各项组件的属性
+                //还原键值
                 checkBox3.Checked = Convert.ToBoolean(Settings.Attributes["Setting"].Value);
                 bool Enabled = Convert.ToBoolean(Settings.Attributes["Enabled"].Value);
                 checkBox1.Checked = Enabled;
+                //还原密匙
                 textBox4.Text = Settings.Attributes["API_KEY"].Value;
                 textBox5.Text = Settings.Attributes["SECRET_KEY"].Value;
+                //检查是否启用自定义密匙
                 if (Enabled)
                 {
-                    //检查是否启用自定义密匙
+                    //使用自定义密匙
                     API_KEY = textBox4.Text;
                     SECRET_KEY = textBox5.Text;
                 }
-                XmlNode FilePath = Root.SelectSingleNode("FilePath");
+                XmlNode FilePath = Root.SelectSingleNode("ImagePath");
                 XmlNodeList PathList = FilePath.ChildNodes;
                 for (int i = 0; i < 1; i++)
                 {
@@ -74,10 +77,7 @@ namespace BaiDu_AI
             {
                 return false;
             }
-            finally
-            {
 
-            }
             return true;
         }
 
@@ -144,19 +144,19 @@ namespace BaiDu_AI
                     //清空textbox2
                     textBox2.Text = "";
                     //数组生成
-                    int[] arr = Enumerable.Range(0, result["words_result"].Count()).ToArray();
+                    int[] arr = Enumerable.Range(0, Convert.ToInt32(result["words_result_num"])).ToArray();
                     //遍历数组字典
                     foreach (int x in arr)
                     {
                         //将识别内容写入textBox2
                         textBox2.Text += result["words_result"][x]["words"] + "\r\n";
-                        toolStripStatusLabel2.Text = "完成";
                     }
+                    toolStripStatusLabel2.Text = "完成";
                 }
                 else if (result.ContainsKey("error_code"))
                 {
                     //索检错误代码
-                    Error_mes(result["error_code"]);
+                    Error_mes(result);
                     toolStripStatusLabel2.Text = "存在错误";
                 }
                 else toolStripStatusLabel2.Text = "存在未知错误";
@@ -215,10 +215,10 @@ namespace BaiDu_AI
         {
             if (textBox3.Text != "")
             {
-                string txt = textBox6.Text;
-                if (radioButton1.Checked == true)
+                string txt = textBox1.Text;
+                if (radioButton2.Checked)
                 {
-                    txt = textBox1.Text;
+                    txt = textBox6.Text;
                 }
                 //创建或打开用于写UTF-8编码文本的文件
                 StreamWriter W_File = File.CreateText(@textBox3.Text);
@@ -234,15 +234,13 @@ namespace BaiDu_AI
                 //    fsWrite.Write(buffer, 0, buffer.Length);
                 //}
             }
-            else
-            {
-                toolStripStatusLabel2.Text = "缺少保存路径，保存失败";
-            }
+            else toolStripStatusLabel2.Text = "缺少保存路径，保存失败";
         }
-        public void Error_mes(JToken error_code)
+        public void Error_mes(JObject result)
         {
             Dictionary<JToken, string> Error_message = new Dictionary<JToken, string>
             {
+                //{错误码,"描述"},
                 { 4, "集群超限额" },
                 { 14, "IAM鉴权失败，建议用户参照文档自查生成sign的方式是否正确，或换用控制台中ak sk的方式调用" },
                 { 17, "每天流量超限额" },
@@ -276,7 +274,7 @@ namespace BaiDu_AI
                 { 282809, "返回结果请求错误（不属于excel或json）" },
                 { 282810, "图像识别错误" }
             };
-            MessageBox.Show(Error_message[error_code], "错误提示", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(Error_message[result["error_code"]] + "\r\n" + result["error_msg"], "错误提示", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
@@ -325,14 +323,17 @@ namespace BaiDu_AI
                 Root = XmlDoc.DocumentElement;
                 settings = (XmlElement)Root.SelectSingleNode("Setting");
                 //匹配XmlNode
-                XmlNode FilePath = Root.SelectSingleNode("FilePath");
+                XmlNode FilePath = Root.SelectSingleNode("ImagePath");
                 //获取XmlNode列表
                 XmlNodeList PathList = FilePath.ChildNodes;
                 for (int i = 0; i < 1; i++)
                 {
                     //遍历XmlNode列表
+                    //保存本地图片路径
                     PathList[i].Attributes["FilePath"].Value = textBox1.Text + "";
+                    //保存在线图片地址
                     PathList[i].Attributes["UrlPath"].Value = textBox6.Text + "";
+                    //保存txt文件保存地址
                     PathList[i].Attributes["SavePath"].Value = textBox3.Text + "";
                 }
             }
@@ -347,11 +348,12 @@ namespace BaiDu_AI
                 XmlDoc.AppendChild(Root);
                 //创建新元素
                 settings = XmlDoc.CreateElement("Setting");
-                XmlElement FilePath = XmlDoc.CreateElement("FilePath");
+                XmlElement FilePath = XmlDoc.CreateElement("ImagePath");
                 Root.AppendChild(FilePath);
                 for (int i = 0; i < 1; i++)
                 {
                     XmlElement Path = XmlDoc.CreateElement("Path");
+                    //设置串连值
                     Path.InnerText = i + "";
                     Path.SetAttribute("FilePath", textBox1.Text + "");
                     Path.SetAttribute("UrlPath", textBox6.Text + "");
@@ -360,13 +362,17 @@ namespace BaiDu_AI
                 }
             }
             //设置节点的属性
+            //保存自动保存使用记录设置
             settings.SetAttribute("Setting", checkBox3.Checked + "");
+            //保存自定义密匙设置
             settings.SetAttribute("Enabled", checkBox1.Checked + "");
             //settings.SetAttribute("AppID", "string");
+            //保存API_KEY
             settings.SetAttribute("API_KEY", textBox4.Text + "");
+            //保存SECRET_KEY
             settings.SetAttribute("SECRET_KEY", textBox5.Text + "");
             Root.AppendChild(settings);
-
+            //保存xml文件
             XmlDoc.Save(XmlPath);
         }
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
@@ -377,13 +383,16 @@ namespace BaiDu_AI
 
         private void button8_Click(object sender, EventArgs e)
         {
+            //判断是否启用自定义密匙
             if (checkBox1.Checked)
             {
+                //启用自定义密匙
                 API_KEY = textBox4.Text + "";
                 SECRET_KEY = textBox5.Text + "";
             }
             else
             {
+                //还原默认密匙
                 API_KEY = "agCqSFsY7OtRTGx3TaykmvIq";
                 SECRET_KEY = "SWZqUnLpGXCUmZ6fPmxtcR8y4f6rI3Cy";
             }
