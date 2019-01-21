@@ -63,24 +63,7 @@ namespace BaiDu_AI
             //报告初始化完成
             toolStripStatusLabel1.Text = "就绪";
         }
-        public static bool WebRequestTest()
-        {
-            string url = "https://aip.baidubce.com/rest/2.0/ocr/v1/general";
-            try
-            {
-                System.Net.WebRequest myRequest = System.Net.WebRequest.Create(url);
-                //设置请求超时为6000ms
-                myRequest.Timeout = 1000;
-                System.Net.WebResponse myResponse = myRequest.GetResponse();
-            }
-            catch (System.Net.WebException)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
+        
         private void button1_Click(object sender, EventArgs e)
         {
             //显示一个标准对话框
@@ -112,7 +95,7 @@ namespace BaiDu_AI
         {
             //禁用button3防止多次点击
             button3.Enabled = false;
-            if (WebRequestTest()/*检查网络的联通性*/)
+            try
             {
                 var client = new Baidu.Aip.Ocr.Ocr(API_KEY, SECRET_KEY);
                 var result = new JObject();
@@ -161,7 +144,10 @@ namespace BaiDu_AI
                 }
                 else toolStripStatusLabel2.Text = "存在未知错误";
             }
-            else toolStripStatusLabel2.Text = "无法链接服务器";
+            catch
+            {
+                toolStripStatusLabel2.Text = "无法链接服务器";
+            }
             button3.Enabled = true;
         }
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
