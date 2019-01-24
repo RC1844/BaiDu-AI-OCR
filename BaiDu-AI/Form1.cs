@@ -24,46 +24,53 @@ namespace BaiDu_AI
         }
         private void Form_Init()
         {
-            //判断文件是否存在
-            if (File.Exists(XmlPath))
+            try
             {
-                //该文件存在
-                //加载文件
-                XmlDocument XmlDoc = new XmlDocument();
-                XmlDoc.Load(XmlPath);
-                //获得根节点
-                XmlElement Root = XmlDoc.DocumentElement;
-                //匹配XmlNode
-                XmlNode Settings = Root.SelectSingleNode("Setting");
-                //根据XmlNode内容设置各项组件的属性
-                //还原键值
-                checkBox3.Checked = Convert.ToBoolean(Settings.Attributes["Setting"].Value);
-                bool Enabled = Convert.ToBoolean(Settings.Attributes["Enabled"].Value);
-                checkBox1.Checked = Enabled;
-                //还原密匙
-                textBox4.Text = Settings.Attributes["API_KEY"].Value;
-                textBox5.Text = Settings.Attributes["SECRET_KEY"].Value;
-                //检查是否启用自定义密匙
-                if (Enabled)
+                //判断文件是否存在
+                if (File.Exists(XmlPath))
                 {
-                    //使用自定义密匙
-                    API_KEY = textBox4.Text;
-                    SECRET_KEY = textBox5.Text;
+                    //该文件存在
+                    //加载文件
+                    XmlDocument XmlDoc = new XmlDocument();
+                    XmlDoc.Load(XmlPath);
+                    //获得根节点
+                    XmlElement Root = XmlDoc.DocumentElement;
+                    //匹配XmlNode
+                    XmlNode Settings = Root.SelectSingleNode("Setting");
+                    //根据XmlNode内容设置各项组件的属性
+                    //还原键值
+                    checkBox3.Checked = Convert.ToBoolean(Settings.Attributes["Setting"].Value);
+                    bool Enabled = Convert.ToBoolean(Settings.Attributes["Enabled"].Value);
+                    checkBox1.Checked = Enabled;
+                    //还原密匙
+                    textBox4.Text = Settings.Attributes["API_KEY"].Value;
+                    textBox5.Text = Settings.Attributes["SECRET_KEY"].Value;
+                    //检查是否启用自定义密匙
+                    if (Enabled)
+                    {
+                        //使用自定义密匙
+                        API_KEY = textBox4.Text;
+                        SECRET_KEY = textBox5.Text;
+                    }
+                    XmlNode FilePath = Root.SelectSingleNode("ImagePath");
+                    XmlNodeList PathList = FilePath.ChildNodes;
+                    for (int i = 0; i < 1; i++)
+                    {
+                        //还原上次使用过的路径
+                        textBox1.Text = PathList[i].Attributes["FilePath"].Value;
+                        textBox6.Text = PathList[i].Attributes["UrlPath"].Value;
+                        textBox3.Text = PathList[i].Attributes["SavePath"].Value;
+                    }
                 }
-                XmlNode FilePath = Root.SelectSingleNode("ImagePath");
-                XmlNodeList PathList = FilePath.ChildNodes;
-                for (int i = 0; i < 1; i++)
-                {
-                    //还原上次使用过的路径
-                    textBox1.Text = PathList[i].Attributes["FilePath"].Value;
-                    textBox6.Text = PathList[i].Attributes["UrlPath"].Value;
-                    textBox3.Text = PathList[i].Attributes["SavePath"].Value;
-                }
+                //报告初始化完成
+                toolStripStatusLabel1.Text = "就绪";
             }
-            //报告初始化完成
-            toolStripStatusLabel1.Text = "就绪";
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
-        
+
         private void button1_Click(object sender, EventArgs e)
         {
             //显示一个标准对话框
@@ -142,11 +149,14 @@ namespace BaiDu_AI
                     Error_mes(result);
                     toolStripStatusLabel2.Text = "存在错误";
                 }
-                else toolStripStatusLabel2.Text = "存在未知错误";
+                else
+                {
+                    toolStripStatusLabel2.Text = "存在未知错误";
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                toolStripStatusLabel2.Text = "无法链接服务器";
+                toolStripStatusLabel2.Text = ex.Message;
             }
             button3.Enabled = true;
         }
@@ -155,7 +165,9 @@ namespace BaiDu_AI
             if (radioButton1.Checked == true)
             {
                 if (textBox1.Text != "")
+                {
                     pictureBox1.Image = Image.FromFile(@textBox1.Text);
+                }
             }
         }
 
@@ -164,7 +176,9 @@ namespace BaiDu_AI
             if (radioButton2.Checked == true)
             {
                 if (textBox6.Text != "")
+                {
                     pictureBox1.ImageLocation = @textBox6.Text;
+                }
             }
         }
 
@@ -220,7 +234,10 @@ namespace BaiDu_AI
                 //    fsWrite.Write(buffer, 0, buffer.Length);
                 //}
             }
-            else toolStripStatusLabel2.Text = "缺少保存路径，保存失败";
+            else
+            {
+                toolStripStatusLabel2.Text = "缺少保存路径，保存失败";
+            }
         }
         public void Error_mes(JObject result)
         {
@@ -263,10 +280,7 @@ namespace BaiDu_AI
             MessageBox.Show(Error_message[result["error_code"]] + "\r\n" + result["error_msg"], "错误提示", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        private void toolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start(@"C:\WINDOWS\system32\mspaint.exe");
-        }
+        private void toolStripMenuItem1_Click(object sender, EventArgs e) => System.Diagnostics.Process.Start(@"C:\WINDOWS\system32\mspaint.exe");
 
         private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
         {
@@ -277,10 +291,7 @@ namespace BaiDu_AI
             else toolStripStatusLabel2.Text = "文件不存在！";
         }
 
-        private void button5_Click(object sender, EventArgs e)
-        {
-            textBox2.Text = "";
-        }
+        private void button5_Click(object sender, EventArgs e) => textBox2.Text = "";
 
         private void button6_Click(object sender, EventArgs e)
         {
@@ -290,10 +301,7 @@ namespace BaiDu_AI
             }
         }
 
-        private void button7_Click(object sender, EventArgs e)
-        {
-            Save_Xml();
-        }
+        private void button7_Click(object sender, EventArgs e) => Save_Xml();
         public void Save_Xml()
         {  //创XML建对象
             XmlDocument XmlDoc = new XmlDocument();
@@ -361,7 +369,7 @@ namespace BaiDu_AI
             //保存xml文件
             XmlDoc.Save(XmlPath);
         }
-        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        private void CheckBox2_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox2.Checked) textBox5.PasswordChar = '*';
             else textBox5.PasswordChar = '\0';
@@ -390,6 +398,39 @@ namespace BaiDu_AI
             {
                 Save_Xml();
             }
+        }
+
+        private void Form1_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.All : DragDropEffects.None;
+        }
+
+        private void Form1_DragDrop(object sender, DragEventArgs e)
+        {
+            string path = ((Array)e.Data.GetData(DataFormats.FileDrop)).GetValue(0).ToString();
+            string fileclass = "";
+            try
+            {
+                FileStream fs = new FileStream(@path, FileMode.Open, FileAccess.Read);
+                BinaryReader reader = new BinaryReader(fs);
+                for (int i = 0; i < 2; i++)
+                {
+                    fileclass += reader.ReadByte().ToString();
+                }
+                if (fileclass == "255216" || fileclass== "6677" || fileclass== "13780")
+                {
+                    textBox1.Text = path;
+                }
+                else
+                {
+                    toolStripStatusLabel2.Text = "不支持的文件格式！";
+                }
+            }
+            catch (Exception ex)
+            {
+                toolStripStatusLabel2.Text = ex.Message;
+            }
+
         }
     }
 }
