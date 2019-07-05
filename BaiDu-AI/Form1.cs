@@ -71,7 +71,7 @@ namespace BaiDu_AI
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Button1_Click(object sender, EventArgs e)
         {
             //显示一个标准对话框
             OpenFileDialog O_File = new OpenFileDialog
@@ -98,7 +98,7 @@ namespace BaiDu_AI
                 pictureBox1.Image = Image.FromFile(@textBox1.Text);
             }
         }
-        private void button3_Click(object sender, EventArgs e)
+        private void Button3_Click(object sender, EventArgs e)
         {
             //禁用button3防止多次点击
             button3.Enabled = false;
@@ -160,7 +160,7 @@ namespace BaiDu_AI
             }
             button3.Enabled = true;
         }
-        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        private void RadioButton1_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButton1.Checked == true)
             {
@@ -171,7 +171,7 @@ namespace BaiDu_AI
             }
         }
 
-        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        private void RadioButton2_CheckedChanged(object sender, EventArgs e)
         {
             if (radioButton2.Checked == true)
             {
@@ -182,7 +182,7 @@ namespace BaiDu_AI
             }
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void Button4_Click(object sender, EventArgs e)
         {
             SaveFileDialog S_File = new SaveFileDialog
             {
@@ -207,7 +207,7 @@ namespace BaiDu_AI
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void Button2_Click(object sender, EventArgs e)
         {
             Save_file();
         }
@@ -280,9 +280,9 @@ namespace BaiDu_AI
             MessageBox.Show(Error_message[result["error_code"]] + "\r\n" + result["error_msg"], "错误提示", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        private void toolStripMenuItem1_Click(object sender, EventArgs e) => System.Diagnostics.Process.Start(@"C:\WINDOWS\system32\mspaint.exe");
+        private void ToolStripMenuItem1_Click(object sender, EventArgs e) => System.Diagnostics.Process.Start(@"C:\WINDOWS\system32\mspaint.exe");
 
-        private void toolStripSplitButton1_ButtonClick(object sender, EventArgs e)
+        private void ToolStripSplitButton1_ButtonClick(object sender, EventArgs e)
         {
             if (File.Exists(@textBox1.Text))
             {
@@ -291,9 +291,9 @@ namespace BaiDu_AI
             else toolStripStatusLabel2.Text = "文件不存在！";
         }
 
-        private void button5_Click(object sender, EventArgs e) => textBox2.Text = "";
+        private void Button5_Click(object sender, EventArgs e) => textBox2.Text = "";
 
-        private void button6_Click(object sender, EventArgs e)
+        private void Button6_Click(object sender, EventArgs e)
         {
             if (textBox2.Text != "")
             {
@@ -301,7 +301,7 @@ namespace BaiDu_AI
             }
         }
 
-        private void button7_Click(object sender, EventArgs e) => Save_Xml();
+        private void Button7_Click(object sender, EventArgs e) => Save_Xml();
         public void Save_Xml()
         {  //创XML建对象
             XmlDocument XmlDoc = new XmlDocument();
@@ -375,7 +375,7 @@ namespace BaiDu_AI
             else textBox5.PasswordChar = '\0';
         }
 
-        private void button8_Click(object sender, EventArgs e)
+        private void Button8_Click(object sender, EventArgs e)
         {
             //判断是否启用自定义密匙
             if (checkBox1.Checked)
