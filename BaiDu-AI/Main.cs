@@ -10,14 +10,14 @@ using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Xml;
 
-namespace BaiDu_AI
+namespace Baidu_AI
 {
-    public partial class Form1 : Form
+    public partial class Main : Form
     {
         string XmlPath = "Seetings.xml";
         string API_KEY = "agCqSFsY7OtRTGx3TaykmvIq";
         string SECRET_KEY = "SWZqUnLpGXCUmZ6fPmxtcR8y4f6rI3Cy";
-        public Form1()
+        public Main()
         {
             InitializeComponent();
             Form_Init();

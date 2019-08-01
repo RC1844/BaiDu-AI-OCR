@@ -1,6 +1,6 @@
-﻿namespace BaiDu_AI
+﻿namespace Baidu_AI
 {
-    partial class Form1
+    partial class Main
     {
         /// <summary>
         /// 必需的设计器变量。
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.button6 = new System.Windows.Forms.Button();
@@ -176,7 +176,7 @@
             // pictureBox1
             // 
             this.pictureBox1.Cursor = System.Windows.Forms.Cursors.Default;
-            this.pictureBox1.Image = global::BaiDu_AI.Properties.Resources.baiduAI;
+            this.pictureBox1.Image = global::Baidu_AI.Properties.Resources.baiduAI;
             resources.ApplyResources(this.pictureBox1, "pictureBox1");
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.TabStop = false;
@@ -289,14 +289,14 @@
             this.toolStripSplitButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripSplitButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem1});
-            this.toolStripSplitButton1.Image = global::BaiDu_AI.Properties.Resources.pic121;
+            this.toolStripSplitButton1.Image = global::Baidu_AI.Properties.Resources.pic121;
             resources.ApplyResources(this.toolStripSplitButton1, "toolStripSplitButton1");
             this.toolStripSplitButton1.Name = "toolStripSplitButton1";
             this.toolStripSplitButton1.ButtonClick += new System.EventHandler(this.ToolStripSplitButton1_ButtonClick);
             // 
             // toolStripMenuItem1
             // 
-            this.toolStripMenuItem1.Image = global::BaiDu_AI.Properties.Resources.pic121;
+            this.toolStripMenuItem1.Image = global::Baidu_AI.Properties.Resources.pic121;
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             resources.ApplyResources(this.toolStripMenuItem1, "toolStripMenuItem1");
             this.toolStripMenuItem1.Click += new System.EventHandler(this.ToolStripMenuItem1_Click);
