@@ -1,4 +1,4 @@
-# BaiDu-AI-OCR
+# Baidu-AI-OCR
 ## About
 > 本项目基于百度云的AIP SDK开发，功能单一，实用性不大，将会弃用
 ## 主界面
